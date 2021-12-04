@@ -58,14 +58,7 @@ void Grafo<T>::insertarArista(T valor, T n1, T n2){
     for(list<T> &a : vertices){
         if((*a.begin()) == n1){
             a.push_back(n2);
-            break;      /*Se inserta a la lista*/
-        }
-    }
-
-    for(list<T> &a : vertices){
-        if((*a.begin()) == n2){
-            a.push_back(n1);      /*Se inserta a la lista*/
-            return;
+            return;      /*Se inserta a la lista*/
         }
     }
 }
