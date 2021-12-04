@@ -89,6 +89,16 @@ void Grafo<T>::borrarNodo(T dato){
             break;
         }
     }
+    for(list<T> &a: verticesad){
+        if((*a.begin())==dato) continue;
+        a.remove(dato);
+    }
+    for (typename vector<list<T>>::iterator i = verticesad.begin(); i != verticesad.end(); i++){
+        if( ( *((*i).begin())) == dato ){
+            verticesad.erase((i));
+            break;
+        }
+    }
     return;
 }
 
@@ -103,7 +113,19 @@ void Grafo<T>::borrarArista(T n1, T n2){
     for(list<T> a : vertices){
         if((*a.begin()) == n2){
             a.remove(n1);
-            return;
+            break;
+        }
+    }
+    for(list<T> &a : verticesad){
+        if((*a.begin()) == n1){
+            a.remove(n2);
+            break;
+        }
+    }
+    for(list<T> a : verticesad){
+        if((*a.begin()) == n2){
+            a.remove(n1);
+            break;
         }
     }
 }
