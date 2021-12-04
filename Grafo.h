@@ -84,12 +84,6 @@ void Grafo<T>::borrarArista(T n1, T n2){
     for(list<T> &a : vertices){
         if((*a.begin()) == n1){
             a.remove(n2);
-            break;
-        }
-    }
-    for(list<T> a : vertices){
-        if((*a.begin()) == n2){
-            a.remove(n1);
             return;
         }
     }
