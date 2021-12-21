@@ -1,189 +1,134 @@
 #ifndef _GRAFO_H_
 #define _GRAFO_H_
 #include <bits/stdc++.h>
+#include<sstream>
 #include<fstream>
+#include "Nodo.h"
 using namespace std;
-template<class T>
+template<class T, class A>
 class Grafo{
     private:
         int nvertices=0;
-        vector<list<T>> vertices;
-        vector<list<T>> verticesad;
+        vector<list<Node<T,A>>> vertices;
     public:
         void crearGrafo();
         void insertarNodo(T dato);
-        void insertarArista(T valor, T n1, T n2);
-        void insertarAristaAd(T valor, T n1, T n2);
+        void insertarArista(A valor, T n1, T n2);
         void borrarNodo(T dato);
         void borrarArista(T n1, T n2);
         bool esVacio();
         bool existeNodo(T);
-        bool sonAdyacentes(T,T);
+        bool sonAdyacentes();
         void verAdyacencias();
-        void graficar(string file);
+        void graficar();
+        void print();
+        void print(ofstream &);
 };
 
 
-template<class T>
-void Grafo<T>::crearGrafo(){
+template<class T, class A>
+void Grafo<T,A>::crearGrafo(){
     nvertices = 0;
-    for(list<T> &a: vertices){
+    for(list<Node<T,A>> &a: vertices){
         a.clear();
     }
     vertices.clear();
 }
 
-template<class T>
-void Grafo<T>::insertarNodo(T dato){
-    list<T> aux;
-    aux.push_back(dato);
+template<class T, class A>
+bool Grafo<T,A>::existeNodo(T dat){
+    for(list<Node<T,A>> a : vertices){
+        if((*a.begin()).dato == dat)
+            return true;
+    }
+    return false;
+}
+
+
+template<class T, class A>
+void Grafo<T,A>::insertarNodo(T dato){
+    Node<T,A> nuevo(dato);
+    list<Node<T,A>> aux;
+    aux.push_back(nuevo);
     if(existeNodo(dato)==false){
         vertices.push_back(aux);
-        verticesad.push_back(aux);
         nvertices++;    
     }
     return;
 }
 
 
-template<class T>
-void Grafo<T>::insertarArista(T valor, T n1, T n2){
-    insertarAristaAd(valor,n1,n2);
-    if(valor == 0) return;
-    for(list<T> &a : vertices){
-        if((*a.begin()) == n1){
-            a.push_back(n2);
+template<class T, class A>
+void Grafo<T,A>::insertarArista(A valor, T n1, T n2){
+    for(list<Node<T,A>> &a : vertices){
+        if((*a.begin()).dato == n1){
+            Node<T,A> conex(n2,valor); /*Nuevo nodo conectado con el valor y el peso de la arista*/
+            a.push_back(conex);
             return;      /*Se inserta a la lista*/
         }
     }
 }
 
-template<class T>
-void Grafo<T>::insertarAristaAd(T valor, T n1, T n2){
-    if(valor == 0) return;
-    for(list<T> &a : verticesad){
-        if((*a.begin()) == n1){
-            a.push_back(n2);
-            break;      /*Se inserta a la lista*/
+template<class T, class A>
+void Grafo<T,A>::borrarNodo(T dato){
+    for(list<Node<T,A>> &a: vertices){
+        for(typename list<Node<T,A>>::iterator i = ++a.begin(); i!=a.end();++i){
+            if( (*i).dato == dato){
+                a.erase(i);
+                break;
+            }
         }
     }
 
-    for(list<T> &a : verticesad){
-        if((*a.begin()) == n2){
-            a.push_back(n1);      /*Se inserta a la lista*/
-            return;
-        }
-    }
-}
-
-template<class T>
-void Grafo<T>::borrarNodo(T dato){
-    for(list<T> &a: vertices){
-        if((*a.begin())==dato) continue;
-        a.remove(dato);
-    }
-    for (typename vector<list<T>>::iterator i = vertices.begin(); i != vertices.end(); i++){
-        if( ( *((*i).begin())) == dato ){
-            vertices.erase((i));
+    for (typename vector<list<Node<T,A>>>::iterator i = vertices.begin(); i != vertices.end(); i++){
+        if( ( *( (i)->begin() ) ).dato == dato ){
+            vertices.erase(i);
             nvertices--;
             break;
         }
     }
-    for(list<T> &a: verticesad){
-        if((*a.begin())==dato) continue;
-        a.remove(dato);
-    }
-    for (typename vector<list<T>>::iterator i = verticesad.begin(); i != verticesad.end(); i++){
-        if( ( *((*i).begin())) == dato ){
-            verticesad.erase((i));
-            break;
-        }
-    }
+
     return;
 }
 
-template<class T>
-void Grafo<T>::borrarArista(T n1, T n2){
-    for(list<T> &a : vertices){
-        if((*a.begin()) == n1){
-            a.remove(n2);
-            break;
-        }
-    }
-    for(list<T> a : vertices){
-        if((*a.begin()) == n2){
-            a.remove(n1);
-            break;
-        }
-    }
-    for(list<T> &a : verticesad){
-        if((*a.begin()) == n1){
-            a.remove(n2);
-            break;
-        }
-    }
-    for(list<T> a : verticesad){
-        if((*a.begin()) == n2){
-            a.remove(n1);
-            break;
-        }
-    }
-}
-
-template<class T>
-bool Grafo<T>::esVacio(){
-    if(nvertices == 0)return true;
-    return false;
-}
-
-template<class T>
-bool Grafo<T>::existeNodo(T dat){
-    for(list<T> a : vertices){
-        if((*a.begin()) == dat)
-            return true;
-    }
-    return false;
-}
-
-template<class T>
-bool Grafo<T>::sonAdyacentes(T n1, T n2){
-    for(list<T> a : vertices){
-        if((*a.begin()) == n1){
-            for(T nod : a){
-                if(nod == n2) 
-                    return true;
+template<class T, class A>
+void Grafo<T,A>::borrarArista(T n1, T n2){
+    for(list<Node<T,A>> &a : vertices){
+        if((*a.begin()).dato == n1){
+            for(typename list<Node<T,A>>::iterator i = a.begin(); i!=a.end();++i){
+                if((*i).dato == n2){
+                    a.erase(i);
+                    break;
+                }
             }
+            break;
         }
-    }
-    return false;
-}
-
-template<class T>
-void Grafo<T>::verAdyacencias(){
-    sort(verticesad.begin(), verticesad.end());
-    for(list<T> a : verticesad){
-        for(T nod : a ){
-            cout << "[" << nod <<"]->";
-        }
-        cout << "\n";
     }
 }
 
-template<class T>
-void Grafo<T>::graficar(string file){
-    ofstream archivo;
-    archivo.open(file.c_str(),ios::out);
-    archivo << "graph {\n";
-    sort(vertices.begin(), vertices.end());
-    for(list<T> a : vertices){
-        for(T nod : a ){
-            if(*a.begin() != nod){
-                archivo << *a.begin() <<"--"<< nod <<";\n"; 
-            }
+
+template<class T, class A>
+void Grafo<T,A>::print(ofstream &os) {
+    for(list<Node<T,A>> a : vertices)
+        os << (*a.begin()).dato << ";\n";
+    for(list<Node<T,A>> a : vertices){
+        for(Node<T,A> nodo : a){
+            if(nodo.dato != (*a.begin()).dato ) 
+                os << (*a.begin()).dato << "->" << nodo.dato << " [ label = " << nodo.ValArista << "];\n";
         }
     }
-    archivo << "}\n";
-    archivo.close();
 }
 
+template<class T, class A>
+void Grafo<T,A>::print(){
+    ofstream os("Grafo.dot");
+    os << "digraph G{\n";
+    os << "label = Grafo;\n";
+    os << "node [shape=circle color = black];\n";
+    print(os);
+    os << "}\n";
+    os.close();
+    system("dot Grafo.dot -o Grafo.png -Tpng");
+    system("Grafo.png");
+}
 #endif
